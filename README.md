@@ -1,6 +1,5 @@
 [![GCC Conan](https://github.com/sintef-ocean/conan-coinmumps/workflows/GCC%20Conan/badge.svg)](https://github.com/sintef-ocean/conan-coinmumps/actions?query=workflow%3A"GCC+Conan")
 [![Clang Conan](https://github.com/sintef-ocean/conan-coinmumps/workflows/Clang%20Conan/badge.svg)](https://github.com/sintef-ocean/conan-coinmumps/actions?query=workflow%3A"Clang+Conan")
-[![MSVC Conan](https://github.com/sintef-ocean/conan-coinmumps/workflows/MSVC%20Conan/badge.svg)](https://github.com/sintef-ocean/conan-coinmumps/actions?query=workflow%3A"MSVC+Conan")
 [![Download](https://api.bintray.com/packages/sintef-ocean/conan/coinmumps%3Asintef/images/download.svg)](https://bintray.com/sintef-ocean/conan/coinmumps%3Asintef/_latestVersion)
 
 

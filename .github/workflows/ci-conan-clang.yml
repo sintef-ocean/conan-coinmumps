@@ -41,6 +41,8 @@ jobs:
           conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
       - name: Conan create
         run: |
+          export CC=clang
+          export CXX=clang++
           conan create -s build_type=${{ matrix.build_type }} \
             -s compiler.version=${{ matrix.compiler_version }} \
             -s compiler.libcxx=libstdc++11 \

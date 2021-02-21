@@ -42,10 +42,10 @@ The package is usually consumed using the `conan install` command or a *conanfil
    project(TheProject CXX)
 
    include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
-   find_package(coinmumps MODULE REQUIRED)
+   find_package(MUMPS MODULE REQUIRED)
 
    add_executable(the_executor code.cpp)
-   target_link_libraries(the_executor coinmumps::coinmumps)
+   target_link_libraries(the_executor MUMPS::MUMPS)
    ```
    Then, do
    ```bash

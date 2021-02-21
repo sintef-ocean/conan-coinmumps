@@ -54,7 +54,7 @@ class CoinMumpsConan(ConanFile):
         self.options["openblas"].shared = self.options.shared
         self.options["openblas"].use_thread = True
         self.options["openblas"].build_lapack = True
-        self.options["openblas"].dynamic_arch = True
+        # self.options["openblas"].dynamic_arch = True
 
         if self.settings.compiler == "gcc" and \
            int(self.settings.compiler.get_safe("version")) >= 10:

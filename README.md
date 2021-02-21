@@ -65,3 +65,4 @@ fPIC | True | [True, False]
 ## Known recipe issues
 
   - This recipe does not yet build mumps on Windows
+  - Gcc 7 does not compile it seems, due to compilation error in transitive dependencies

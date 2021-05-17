@@ -12,6 +12,8 @@ env:
   CONAN_USE_ALWAYS_SHORT_PATHS: True
   CONAN_SYSREQUIRES_MODE: enabled
   CONAN_SYSREQUIRES_SUDO: 1
+  CONAN_REVISIONS_ENABLED: 1
+
 jobs:
   conan-with-gcc:
     name: Conan

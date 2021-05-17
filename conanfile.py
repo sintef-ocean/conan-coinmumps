@@ -23,7 +23,7 @@ class CoinMumpsConan(ConanFile):
         "coinmetis/4.0.3@sintef/stable")
 
     _coin_helper = "ThirdParty-Mumps"
-    _coin_helper_branch = "stable/2.1"
+    _coin_helper_branch = "stable/2.0"
     _autotools = None
 
     def _configure_autotools(self):
@@ -42,6 +42,11 @@ class CoinMumpsConan(ConanFile):
                 "--with-metis-lflags={}".format(" ".join(pkg_coinmetis.libs)))
             auto_args.append(
                 "--with-metis-cflags={}".format(" ".join(pkg_coinmetis.cflags)))
+
+            # Not relevant until mumps 5
+            # self.output.warn("setting --with-intsize=64")
+            # auto_args.append("--with-intsize=64")
+
 
             self._autotools.configure(args=auto_args)
             return self._autotools

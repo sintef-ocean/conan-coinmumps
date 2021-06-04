@@ -43,10 +43,13 @@ class CoinMumpsConan(ConanFile):
             auto_args.append(
                 "--with-metis-cflags={}".format(" ".join(pkg_coinmetis.cflags)))
 
-            # Not relevant until mumps 5
+            if self.settings.compiler == "gcc" and \
+               int(self.settings.compiler.get_safe("version")) >= 10:
+                auto_args.append("ADD_FCFLAGS=-fallow-argument-mismatch")
+
+            # Not relevant until mumps 5:
             # self.output.warn("setting --with-intsize=64")
             # auto_args.append("--with-intsize=64")
-
 
             self._autotools.configure(args=auto_args)
             return self._autotools
@@ -64,7 +67,7 @@ class CoinMumpsConan(ConanFile):
         if self.settings.compiler == "gcc" and \
            int(self.settings.compiler.get_safe("version")) >= 10:
             self.output.warn(
-                "If you are using gfortran >= 10; set environment FC=gfortran")
+                "If you are using gfortran >= 10; maybe set environment FC=gfortran")
 
     def config_options(self):
         if self.settings.os == "Windows":

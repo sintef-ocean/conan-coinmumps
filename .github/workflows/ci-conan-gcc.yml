@@ -13,6 +13,7 @@ env:
   CONAN_SYSREQUIRES_MODE: enabled
   CONAN_SYSREQUIRES_SUDO: 1
   CONAN_REVISIONS_ENABLED: 1
+  FC: gfortran
 
 jobs:
   conan-with-gcc:
@@ -21,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler_version: [8, 9]
+        compiler_version: [8, 9, 10]
         build_type: [Debug, Release]
         os: [ubuntu-20.04]
     container:

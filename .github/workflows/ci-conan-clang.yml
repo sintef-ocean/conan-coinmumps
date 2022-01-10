@@ -32,8 +32,8 @@ jobs:
       - name: Install prerequisites
         run: |
           sudo apt-get update
-          sudo pip3 install --upgrade setuptools pip
-          sudo pip3 install conan requests
+          sudo pip3 install --upgrade setuptools pip requests
+          sudo pip3 install --upgrade conan
           sudo apt-get install -y gfortran-${{ matrix.compiler_version }}
           sudo update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-${{ matrix.compiler_version }} 20
       - name: Configure Conan

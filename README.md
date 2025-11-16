@@ -1,66 +1,70 @@
-[![GCC Conan](https://github.com/sintef-ocean/conan-coinmumps/workflows/GCC%20Conan/badge.svg)](https://github.com/sintef-ocean/conan-coinmumps/actions?query=workflow%3A"GCC+Conan")
-[![Clang Conan](https://github.com/sintef-ocean/conan-coinmumps/workflows/Clang%20Conan/badge.svg)](https://github.com/sintef-ocean/conan-coinmumps/actions?query=workflow%3A"Clang+Conan")
-
+[![Linux GCC](https://github.com/sintef-ocean/conan-coinmumps/workflows/Linux%20GCC/badge.svg)](https://github.com/sintef-ocean/conan-coinmumps/actions?query=workflow%3A"Linux+GCC")
 
 [Conan.io](https://conan.io) recipe for [coinmumps](http://mumps.enseeiht.fr).
 
 This recipe is made with the help of `coin-or` builder repository [ThirdParty-Mumps](https://github.com/coin-or-tools/ThirdParty-Mumps).
-The package is usually consumed using the `conan install` command or a *conanfile.txt*.
 
 ## How to use this package
 
-1. Add remote to conan's package [remotes](https://docs.conan.io/en/latest/reference/commands/misc/remote.html?highlight=remotes):
+1. Add remote to conan's package [remotes](https://docs.conan.io/2/reference/commands/remote.html)
 
    ```bash
-   $ conan remote add sintef https://artifactory.smd.sintef.no/artifactory/api/conan/conan-local
+   $ conan remote add sintef https://package.smd.sintef.no
    ```
 
-2. Using *conanfile.txt* in your project with *cmake*
+2. Using [*conanfile.txt*](https://docs.conan.io/2/reference/conanfile_txt.html) and *cmake* in your project.
 
-   Add a [*conanfile.txt*](http://docs.conan.io/en/latest/reference/conanfile_txt.html) to your project. This file describes dependencies and your configuration of choice, e.g.:
-
+   Add *conanfile.txt*:
    ```
    [requires]
-   coinmumps/[>=4.10.0]@sintef/stable
+   coinmumps/5.8.1@sintef/stable
+
+   [tool_requires]
+   cmake/[>=3.25.0]
 
    [options]
-   coinmumps:shared=True
 
-   [imports]
-   licenses, * -> ./licenses @ folder=True
+   [layout]
+   cmake_layout
 
    [generators]
-   cmake_paths
-   cmake_find_package
+   CMakeDeps
+   CMakeToolchain
+   VirtualBuildEnv
    ```
-
    Insert into your *CMakeLists.txt* something like the following lines:
    ```cmake
-   cmake_minimum_required(VERSION 3.13)
+   cmake_minimum_required(VERSION 3.15)
    project(TheProject CXX)
 
-   include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
-   find_package(MUMPS MODULE REQUIRED)
+   find_package(coinmumps REQUIRED)
 
    add_executable(the_executor code.cpp)
-   target_link_libraries(the_executor MUMPS::MUMPS)
+   target_link_libraries(the_executor coinmumps::coinmumps)
    ```
-   Then, do
+   Install and build e.g. a Release configuration:
    ```bash
-   $ mkdir build && cd build
-   $ conan install .. -s build_type=<build_type>
+   $ conan install . -s build_type=Release -pr:b=default
+   $ source build/Release/generators/conanbuild.sh
+   $ cmake --preset conan-release
+   $ cmake --build build/Release
+   $ source build/Release/generators/deactivate_conanbuild.sh
    ```
-   where `<build_type>` is e.g. `Debug` or `Release`.
-   You can now continue with the usual dance with cmake commands for configuration and compilation. For details on how to use conan, please consult [Conan.io docs](http://docs.conan.io/en/latest/)
 
 ## Package options
 
 Option | Default | Domain
 ---|---|---
-shared  | True | [True, False]
+shared  | False | [True, False]
 fPIC | True | [True, False]
+precision | double | ["single, "double", "all"]
+with_64bit_int | False | [True, False]
+with_lapack | True | [True, False]
+with_metis | True | [True, False]
+with_openmp | False | [True, False]
+with_pthread | True, [True, False]
 
 ## Known recipe issues
 
   - This recipe does not yet build mumps on Windows
-  - Gcc 7 does not compile it seems, due to compilation error in transitive dependencies
+  - There is an issue with static openmpi, so if compiling with `-o "*:shared=False`, add also `-o openmpi*:shared=True`.

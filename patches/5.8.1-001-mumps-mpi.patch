@@ -1,0 +1,108 @@
+diff -urN MUMPS_5.8.1/libseq/mpic.c MUMPS/libseq/mpic.c
+--- MUMPS_5.8.1/libseq/mpic.c	2025-07-30 18:49:22.000000000 +0200
++++ MUMPS/libseq/mpic.c	2025-11-15 16:06:45.375332407 +0100
+@@ -8,12 +8,12 @@
+  *  Mumps Technologies, University of Bordeaux.
+  *
+  *  This version of MUMPS is provided to you free of charge. It is
+- *  released under the CeCILL-C license 
++ *  released under the CeCILL-C license
+  *  (see doc/CeCILL-C_V1-en.txt, doc/CeCILL-C_V1-fr.txt, and
+  *  https://cecill.info/licences/Licence_CeCILL-C_V1-en.html)
+  *
+  */
+-#include "mpi.h"
++#include "mumps_mpi.h"
+ #include "elapse.h"
+ MPI_Comm LIBSEQ_CALL MPI_Comm_f2c(LIBSEQ_INT comm)
+ {
+diff -urN MUMPS_5.8.1/src/mumps_metis64.h MUMPS/src/mumps_metis64.h
+--- MUMPS_5.8.1/src/mumps_metis64.h	2025-07-30 18:49:22.000000000 +0200
++++ MUMPS/src/mumps_metis64.h	2025-11-15 16:08:08.631349126 +0100
+@@ -8,7 +8,7 @@
+  *  Mumps Technologies, University of Bordeaux.
+  *
+  *  This version of MUMPS is provided to you free of charge. It is
+- *  released under the CeCILL-C license 
++ *  released under the CeCILL-C license
+  *  (see doc/CeCILL-C_V1-en.txt, doc/CeCILL-C_V1-fr.txt, and
+  *  https://cecill.info/licences/Licence_CeCILL-C_V1-en.html)
+  *
+@@ -18,7 +18,11 @@
+ /* Interfacing with 64-bit (par)metis, for METIS 4 or METIS 5 */
+ #include "mumps_common.h" /* includes mumps_compat.h and mumps_c_types.h */
+ #if defined(parmetis) || defined(parmetis3)
++#ifdef MPI
+ #include "mpi.h"
++#else
++#include "mumps_mpi.h"
++#endif
+ #define MUMPS_PARMETIS_64 \
+   F_SYMBOL(parmetis_64,PARMETIS_64)
+ void MUMPS_CALL
+diff -urN MUMPS_5.8.1/src/mumps_metis.h MUMPS/src/mumps_metis.h
+--- MUMPS_5.8.1/src/mumps_metis.h	2025-07-30 18:49:22.000000000 +0200
++++ MUMPS/src/mumps_metis.h	2025-11-15 16:08:39.787354345 +0100
+@@ -8,7 +8,7 @@
+  *  Mumps Technologies, University of Bordeaux.
+  *
+  *  This version of MUMPS is provided to you free of charge. It is
+- *  released under the CeCILL-C license 
++ *  released under the CeCILL-C license
+  *  (see doc/CeCILL-C_V1-en.txt, doc/CeCILL-C_V1-fr.txt, and
+  *  https://cecill.info/licences/Licence_CeCILL-C_V1-en.html)
+  *
+@@ -18,7 +18,11 @@
+ /* Interfacing with 32-bit (par)metis, for METIS 4 or METIS 5 */
+ #include "mumps_common.h" /* includes mumps_compat.h and mumps_c_types.h */
+ #if defined(parmetis) || defined(parmetis3)
++#ifdef MPI
+ #include "mpi.h"
++#else
++#include "mumps_mpi.h"
++#endif
+ #define MUMPS_PARMETIS \
+   F_SYMBOL(parmetis,PARMETIS)
+ void MUMPS_CALL
+diff -urN MUMPS_5.8.1/src/mumps_scotch.h MUMPS/src/mumps_scotch.h
+--- MUMPS_5.8.1/src/mumps_scotch.h	2025-07-30 18:49:22.000000000 +0200
++++ MUMPS/src/mumps_scotch.h	2025-11-15 16:09:39.323364130 +0100
+@@ -8,7 +8,7 @@
+  *  Mumps Technologies, University of Bordeaux.
+  *
+  *  This version of MUMPS is provided to you free of charge. It is
+- *  released under the CeCILL-C license 
++ *  released under the CeCILL-C license
+  *  (see doc/CeCILL-C_V1-en.txt, doc/CeCILL-C_V1-fr.txt, and
+  *  https://cecill.info/licences/Licence_CeCILL-C_V1-en.html)
+  *
+@@ -59,7 +59,7 @@
+               MUMPS_INT * const        nvtab,
+               MUMPS_INT * const        elentab,
+               MUMPS_INT * const        lasttab,
+-              MUMPS_INT * const        ncmpa, 
++              MUMPS_INT * const        ncmpa,
+ #if defined(MUMPS_SCOTCHIMPORTOMPTHREADS)
+               SCOTCH_Context * const contextptr,
+ #endif
+@@ -77,7 +77,7 @@
+               MUMPS_INT * const        nvtab,
+               MUMPS_INT * const        elentab,
+               MUMPS_INT * const        lasttab,
+-              MUMPS_INT * const        ncmpa, 
++              MUMPS_INT * const        ncmpa,
+ #if defined(MUMPS_SCOTCHIMPORTOMPTHREADS)
+               SCOTCH_Context * const contextptr,
+ #endif
+@@ -97,7 +97,11 @@
+ MUMPS_SCOTCH_SET_PTHREAD_NUMBER (MUMPS_INT *PTHREAD_NUMBER);
+ #endif /*scotch or ptscotch*/
+ #if defined(ptscotch)
++#ifdef MPI
+ #include "mpi.h"
++#else
++#include "mumps_mpi.h"
++#endif
+ #include "ptscotch.h"
+ #define MUMPS_DGRAPHINIT \
+   F_SYMBOL(dgraphinit,DGRAPHINIT)

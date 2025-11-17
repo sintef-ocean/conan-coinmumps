@@ -72,7 +72,7 @@ class CoinMumpsConan(ConanFile):
             self.requires("openblas/0.3.30")
         if self.options.with_metis:
             self.requires("metis/5.2.1")
-        if self.options.with_openmp:
+        if self.options.with_openmp and not self.settings.os == "Windows":
             if not self.settings.compiler == "gcc":
                 self.requires("llvm-openmp/20.1.6")
         # todo: pthreadsw4 on windows
@@ -174,19 +174,24 @@ class CoinMumpsConan(ConanFile):
             if self.options.with_pthread:
                 self.cpp_info.system_libs.extend(["pthread"])
 
+        # Add pthreadsw4 requirement for windows
+
         self.cpp_info.requires = ["openmpi::ompi-c"]
         if self.options.with_lapack:
             self.cpp_info.requires.append("openblas::openblas")
         if self.options.with_metis:
             self.cpp_info.requires.append("metis::metis")
         if self.options.with_openmp:
-            if not self.settings.compiler == "gcc":
-                self.cpp_info.requires.append("llvm-openmp::llvm-openmp")
-            else:
+            if self.settings.compiler == "gcc":
                 self.cpp_info.system_libs.extend(["gomp"])
+            elif not self.settings.os == "Windows":
+                self.cpp_info.requires.append("llvm-openmp::llvm-openmp")
 
     def system_requirements(self):
         Apt(self).install(["dos2unix"])
-        if self.options.with_openmp and not self.settings.compiler == "gcc":
-            # May change..
-            Apt(self).install(["libgomp1"])
+        if self.settings.compiler == "gcc":
+            # Depends on gcc version..
+            Apt(self).install(["libgfortran5", "libquadmath0"])
+            if self.options.with_openmp:
+                # May change..
+                Apt(self).install(["libgomp1"])

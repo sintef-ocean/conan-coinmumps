@@ -19,6 +19,7 @@ jobs:
       matrix:
         profile: [gcc]
         compiler_version: [12, 13, 14]
+        version: ["5.8.1"]
         build_type: [Debug, Release]
         include:
           - linux: debian:latest
@@ -56,7 +57,7 @@ jobs:
             -s compiler.version=${{ matrix.compiler_version }} \
             -pr:b=${{ matrix.profile }} -pr:h=${{ matrix.profile }} \
             -b missing -b outdated -b '${{ env.package_name }}*' \
-            --user sintef --channel stable \
+            --version ${{ matrix.version }} --user sintef --channel stable \
             .
       - name: Conan upload
         run: |

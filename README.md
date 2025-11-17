@@ -68,3 +68,4 @@ with_pthread | True, [True, False]
 
   - This recipe does not yet build mumps on Windows
   - There is an issue with static openmpi, so if compiling with `-o "*:shared=False`, add also `-o openmpi*:shared=True`.
+  - `pkg-config` must be installed.

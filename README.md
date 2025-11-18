@@ -62,7 +62,8 @@ with_64bit_int | False | [True, False]
 with_lapack | True | [True, False]
 with_metis | True | [True, False]
 with_openmp | False | [True, False]
-with_pthread | True, [True, False]
+with_openmpi | False | [True, False]
+with_pthread | True [True, False]
 
 ## Known recipe issues
 

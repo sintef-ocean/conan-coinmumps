@@ -2,17 +2,16 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import (
     get, copy, rename, rmdir, rm,
     apply_conandata_patches, export_conandata_patches
     )
 from conan.tools.gnu import (
-    Autotools, AutotoolsToolchain, PkgConfig, PkgConfigDeps
+    Autotools, AutotoolsDeps, AutotoolsToolchain,
+    PkgConfig, PkgConfigDeps
     )
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft.visual import is_msvc
+from conan.tools.microsoft import is_msvc, unix_path
 from conan.tools.system.package_manager import Apt
 
 
@@ -35,6 +34,7 @@ class CoinMumpsConan(ConanFile):
         "with_lapack": [True, False],
         "with_metis": [True, False],
         "with_openmp": [True, False],
+        "with_openmpi": [True, False],
         "with_pthread": [True, False],
 
     }
@@ -46,9 +46,13 @@ class CoinMumpsConan(ConanFile):
         "with_lapack": True,
         "with_metis": True,
         "with_openmp": False,
+        "with_openmpi": False,
         "with_pthread": True,
     }
-    package_type = "library"
+
+    @property
+    def _settings_build(self):
+        return getattr(self, "settings_build", self.settings)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -64,10 +68,12 @@ class CoinMumpsConan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
 
         self.options["metis"].with_64bit_types = self.options.with_64bit_int
+        if self.settings.os == "Windows":
+            self.options["msys2"].additional_packages = "mingw-w64-ucrt-x86_64-gcc-fortran"
 
     def requirements(self):
-        # Is this really needed?
-        self.requires("openmpi/4.1.6")
+        if self.options.with_openmpi:
+            self.requires("openmpi/4.1.6")
         if self.options.with_lapack:
             self.requires("openblas/0.3.30")
         if self.options.with_metis:
@@ -75,7 +81,8 @@ class CoinMumpsConan(ConanFile):
         if self.options.with_openmp and not self.settings.os == "Windows":
             if not self.settings.compiler == "gcc":
                 self.requires("llvm-openmp/20.1.6")
-        # todo: pthreadsw4 on windows
+        if self.options.with_pthread:
+            self.requires("pthreads4w/3.0.0")
 
     def validate(self):
         if is_msvc(self):
@@ -85,8 +92,15 @@ class CoinMumpsConan(ConanFile):
             raise ConanInvalidConfiguration("MUMPS requires openblas with build_lapack=True")
 
     def build_requirements(self):
-        if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
+        self.tool_requires("gnu-config/cci.20210814")
+        if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
+        if self._settings_build.os == "Windows":
+            self.win_bash = True
+            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
+                self.tool_requires("msys2/cci.latest")
+        if is_msvc(self):
+            self.tool_requires("automake/1.16.5")
 
     def layout(self):
         basic_layout(self)
@@ -96,12 +110,8 @@ class CoinMumpsConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version]["source"], destination="MUMPS", strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
-        if not cross_building(self):
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
+        at = AutotoolsDeps(self)
+        at.generate()
 
         deps = PkgConfigDeps(self)
         deps.generate()
@@ -132,7 +142,22 @@ class CoinMumpsConan(ConanFile):
                 "--with-metis-lflags=" + " ".join(["-L" + " -L".join(metis.libdirs),
                                                    "-l" + " -l".join(metis.libs)]),
             ])
-        tc.generate()
+
+        env = tc.environment()
+
+        if is_msvc(self):
+            compile_wrapper = unix_path(self, self.conf.get("user.automake:compile-wrapper", check_type=str))
+            ar_wrapper = unix_path(self, self.conf.get("user.automake:lib-wrapper", check_type=str))
+            env.define("CC", f"{compile_wrapper} cl -nologo")
+            env.define("CXX", f"{compile_wrapper} cl -nologo")
+            env.define("LD", f"{compile_wrapper} link -nologo")
+            env.define("AR", f"{ar_wrapper} lib")
+            env.define("NM", "dumpbin -symbols")
+            env.define("OBJDUMP", ":")
+            env.define("RANLIB", ":")
+            env.define("STRIP", ":")
+
+        tc.generate(env)
 
     def _patch_sources(self):
         # https://github.com/coin-or-tools/ThirdParty-Mumps/blob/releases/3.0.11/get.Mumps#L62-L67
@@ -173,10 +198,11 @@ class CoinMumpsConan(ConanFile):
 
             if self.options.with_pthread:
                 self.cpp_info.system_libs.extend(["pthread"])
+        if self.settings.os == "Windows" and self.options.with_pthread:
+            self.cpp_info.requires.append("pthreads4w:pthreads4w")
 
-        # Add pthreadsw4 requirement for windows
-
-        self.cpp_info.requires = ["openmpi::ompi-c"]
+        if self.options.with_openmpi:
+            self.cpp_info.requires.append("openmpi::ompi-c")
         if self.options.with_lapack:
             self.cpp_info.requires.append("openblas::openblas")
         if self.options.with_metis:

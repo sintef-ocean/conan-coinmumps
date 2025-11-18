@@ -11,7 +11,14 @@
  * Solution is [1 2]^T */
 #include <stdio.h>
 #include <string.h>
+#include "mumps_compat.h"
+
+#ifdef COIN_USE_MUMPS_MPI_H
+#include "mumps_mpi.h"
+#else
 #include "mpi.h"
+#endif
+
 #include "dmumps_c.h"
 #define JOB_INIT -1
 #define JOB_END -2

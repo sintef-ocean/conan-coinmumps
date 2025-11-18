@@ -81,7 +81,7 @@ class CoinMumpsConan(ConanFile):
         if self.options.with_openmp and not self.settings.os == "Windows":
             if not self.settings.compiler == "gcc":
                 self.requires("llvm-openmp/20.1.6")
-        if self.options.with_pthread:
+        if self.options.with_pthread and self.settings.os == "Windows":
             self.requires("pthreads4w/3.0.0")
 
     def validate(self):
